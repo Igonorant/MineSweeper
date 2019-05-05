@@ -36,6 +36,7 @@ public:
 	MineField(const int minesNumbers, Vei2 topLeftPos);
 	void Draw(Graphics& gfx);
 	void InsertMines(const int minesNumber);
+	int Screen2Grid(Vei2 screenPos);
 	void TileClick(MainWindow& wnd);
 
 private:

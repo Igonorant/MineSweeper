@@ -39,6 +39,7 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	mineField.TileClick(wnd);
 }
 
 void Game::ComposeFrame()

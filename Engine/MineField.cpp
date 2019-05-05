@@ -2,6 +2,7 @@
 #include "RectI.h"
 #include <random>
 #include <assert.h>
+#include <algorithm>
 
 void MineField::Tile::SetPosition(Vei2 topLeftPos)
 {
@@ -98,6 +99,7 @@ MineField::MineField(const int minesNumbers, Vei2 topLeftPos)
 		}
 	}
 	InsertMines(minesNumbers);
+	//SetNeibourhood
 
 
 }
@@ -127,4 +129,23 @@ void MineField::InsertMines(int minesNumber)
 		}
 	}
 
+}
+
+int MineField::Screen2Grid(Vei2 screenPos)
+{
+	int x = (screenPos.x - topLeftPosition.x) / SpriteCodex::tileSize;
+	int y = (screenPos.y - topLeftPosition.y) / SpriteCodex::tileSize;
+	
+	x = std::max(x, 0);
+	x = std::min(x, fieldWidth - 1);
+	y = std::max(y, 0);
+	y = std::min(y, fieldHeight - 1);
+	return (x*fieldWidth+y);
+}
+
+void MineField::TileClick(MainWindow& wnd)
+{
+	if (wnd.mouse.LeftIsPressed()) {
+		tiles[Screen2Grid(wnd.mouse.GetPos())].Reveal();
+	}
 }
