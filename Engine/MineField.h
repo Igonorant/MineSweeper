@@ -25,7 +25,7 @@ private:
 
 	private:
 		static constexpr int tileSize = SpriteCodex::tileSize;
-		Vei2 topLeftPosition = { 0,0 };
+		Vei2 tileTopLeftPosition = { 0,0 };
 		TileState state = TileState::Hidden;
 		bool hasBomb = false;
 		int neighbourBombs = 0;
@@ -36,12 +36,12 @@ public:
 	MineField(const int minesNumbers, Vei2 topLeftPos);
 	void Draw(Graphics& gfx);
 	void InsertMines(const int minesNumber);
-	int Screen2Grid(Vei2 screenPos);
+	int Screen2Grid(const Vei2 screenPos) const;
 	void TileClick(MainWindow& wnd);
 
 private:
-	static constexpr int fieldWidth = 10;
-	static constexpr int fieldHeight = 10;
+	static constexpr int fieldWidth = 20;
+	static constexpr int fieldHeight = 18;
 	static constexpr int fieldSize = fieldWidth * fieldHeight;
 	Tile tiles[fieldSize];
 	Vei2 topLeftPosition;

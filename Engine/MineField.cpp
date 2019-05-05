@@ -4,9 +4,9 @@
 #include <assert.h>
 #include <algorithm>
 
-void MineField::Tile::SetPosition(Vei2 topLeftPos)
+void MineField::Tile::SetPosition(Vei2 topLeftPos_in)
 {
-	topLeftPosition = topLeftPos;
+	tileTopLeftPosition = topLeftPos_in;
 }
 
 bool MineField::Tile::AddBomb() //return true if successful put bomb, false if already has a bomb
@@ -27,59 +27,59 @@ void MineField::Tile::Draw(Graphics& gfx)
 {
 	switch (state) {
 	case TileState::Hidden:
-		SpriteCodex::DrawTileButton(topLeftPosition, gfx);
+		SpriteCodex::DrawTileButton(tileTopLeftPosition, gfx);
 		break;
 	case TileState::Flagged:
-		SpriteCodex::DrawTileFlag(topLeftPosition, gfx);
+		SpriteCodex::DrawTileFlag(tileTopLeftPosition, gfx);
 		break;
 	case TileState::Revealed:
 		if (hasBomb) {
-			SpriteCodex::DrawTileBomb(topLeftPosition, gfx);
+			SpriteCodex::DrawTileBomb(tileTopLeftPosition, gfx);
 			break;
 		}
 		else {
 			switch (neighbourBombs) {
 			case 0:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 1:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 2:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 3:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 4:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 5:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 6:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 7:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 8:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			case 9:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 				break;
 			default:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile0(tileTopLeftPosition, gfx);
 			}
 			break;
 		}
 	case TileState::Exploded:
-		SpriteCodex::DrawTileBombRed(topLeftPosition, gfx);
-		SpriteCodex::DrawTileCross(topLeftPosition, gfx);
+		SpriteCodex::DrawTileBombRed(tileTopLeftPosition, gfx);
+		SpriteCodex::DrawTileCross(tileTopLeftPosition, gfx);
 		break;
 	default:
-		SpriteCodex::DrawTileButton(topLeftPosition, gfx);
+		SpriteCodex::DrawTileButton(tileTopLeftPosition, gfx);
 	}
 }
 
@@ -90,14 +90,15 @@ void MineField::Tile::Reveal()
 
 MineField::MineField(const int minesNumbers, Vei2 topLeftPos)
 {
-	topLeftPosition = topLeftPos;
+	
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < fieldHeight; y++) {
-			Vei2 currentScreenPos = topLeftPosition + Vei2(x * SpriteCodex::tileSize, y * SpriteCodex::tileSize);
+			Vei2 currentScreenPos = topLeftPos + Vei2(x * SpriteCodex::tileSize, y * SpriteCodex::tileSize);
 			tiles[x*fieldWidth + y].SetPosition(currentScreenPos);
 			// tiles[x * fieldWidth + y].Reveal(); //test to check if everything is working under the tiles
 		}
 	}
+	topLeftPosition = topLeftPos;
 	InsertMines(minesNumbers);
 	//SetNeibourhood
 
@@ -131,7 +132,7 @@ void MineField::InsertMines(int minesNumber)
 
 }
 
-int MineField::Screen2Grid(Vei2 screenPos)
+int MineField::Screen2Grid(const Vei2 screenPos) const
 {
 	int x = (screenPos.x - topLeftPosition.x) / SpriteCodex::tileSize;
 	int y = (screenPos.y - topLeftPosition.y) / SpriteCodex::tileSize;
