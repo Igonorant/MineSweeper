@@ -1,6 +1,16 @@
 #include "SpriteCodex.h"
 #include <assert.h>
 
+void SpriteCodex::DrawBackground(const Vei2& pos, const int width, const int height, Graphics& gfx)
+{
+	Vei2 end = { pos.x + width , pos.y + height};
+	for (int x = pos.x; x < end.x; x++) {
+		for (int y = pos.y; y < end.y; y++) {
+			gfx.PutPixel(x, y, baseColor);
+		}
+	}
+}
+
 void SpriteCodex::DrawTile0( const Vei2& pos,Graphics& gfx )
 {
 	gfx.PutPixel( 0 + pos.x,0 + pos.y,128,128,128 );
