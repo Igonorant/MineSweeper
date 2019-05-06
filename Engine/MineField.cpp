@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <algorithm>
 
-void MineField::Tile::SetPosition(Vei2 topLeftPos)
+void MineField::Tile::SetPosition(const Vei2& topLeftPos)
 {
 	topLeftPosition = topLeftPos;
 }
@@ -88,13 +88,13 @@ void MineField::Tile::Reveal()
 	state = TileState::Revealed;
 }
 
-MineField::MineField(const int minesNumbers, Vei2 topLeftPos)
+MineField::MineField(const int minesNumbers, const Vei2& topLeftPos)
 {
 	topLeftPosition = topLeftPos;
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < fieldHeight; y++) {
 			Vei2 currentScreenPos = topLeftPosition + Vei2(x * SpriteCodex::tileSize, y * SpriteCodex::tileSize);
-			tiles[x*fieldWidth + y].SetPosition(currentScreenPos);
+			tiles[Map2D(x,y)].SetPosition(currentScreenPos);
 			// tiles[x * fieldWidth + y].Reveal(); //test to check if everything is working under the tiles
 		}
 	}
@@ -109,7 +109,7 @@ void MineField::Draw(Graphics& gfx)
 	SpriteCodex::DrawBackground(topLeftPosition, fieldWidth * SpriteCodex::tileSize, fieldHeight * SpriteCodex::tileSize, gfx);
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < fieldHeight; y++) {
-			tiles[x*fieldWidth + y].Draw(gfx);
+			tiles[Map2D(x, y)].Draw(gfx);
 		}
 	}
 }
@@ -123,7 +123,7 @@ void MineField::InsertMines(int minesNumber)
 	std::uniform_int_distribution<int> yDist(0, fieldHeight - 1);
 
 	while (minesNumber > 0) {
-		int currentTileGridPos = xDist(rng) * fieldWidth + yDist(rng);
+		int currentTileGridPos = xDist(rng) * fieldHeight + yDist(rng);
 		if (tiles[currentTileGridPos].AddBomb()) {
 			minesNumber--;
 		}
@@ -131,7 +131,7 @@ void MineField::InsertMines(int minesNumber)
 
 }
 
-int MineField::Screen2Grid(Vei2 screenPos)
+int MineField::Screen2Grid(const Vei2& screenPos)
 {
 	int x = (screenPos.x - topLeftPosition.x) / SpriteCodex::tileSize;
 	int y = (screenPos.y - topLeftPosition.y) / SpriteCodex::tileSize;
@@ -140,7 +140,14 @@ int MineField::Screen2Grid(Vei2 screenPos)
 	x = std::min(x, fieldWidth - 1);
 	y = std::max(y, 0);
 	y = std::min(y, fieldHeight - 1);
-	return (x*fieldWidth+y);
+	return (Map2D(x, y));
+}
+
+Vei2 MineField::Grid2Screen(const int gridPos)
+{
+	const int x = gridPos / fieldHeight + topLeftPosition.x;
+	const int y = gridPos % fieldHeight + topLeftPosition.y;
+	return Vei2(x,y);
 }
 
 void MineField::TileClick(MainWindow& wnd)
@@ -148,4 +155,9 @@ void MineField::TileClick(MainWindow& wnd)
 	if (wnd.mouse.LeftIsPressed()) {
 		tiles[Screen2Grid(wnd.mouse.GetPos())].Reveal();
 	}
+}
+
+const int MineField::Map2D(const int x, const int y)
+{
+	return x * fieldHeight + y;
 }

@@ -17,7 +17,7 @@ private:
 
 	public:
 		Tile() = default;
-		void SetPosition(Vei2 topLeftPos);
+		void SetPosition(const Vei2& topLeftPos);
 		bool AddBomb(); //return true if successful put bomb, false if already has a bomb
 		void SetNeighbourBombs(const int bombCount);
 		void Draw(Graphics& gfx);
@@ -33,15 +33,17 @@ private:
 
 public:
 	MineField() = default;
-	MineField(const int minesNumbers, Vei2 topLeftPos);
+	MineField(const int minesNumbers, const Vei2& topLeftPos);
 	void Draw(Graphics& gfx);
 	void InsertMines(const int minesNumber);
-	int Screen2Grid(Vei2 screenPos);
+	int Screen2Grid(const Vei2& screenPos);
+	Vei2 Grid2Screen(const int gridPos);
 	void TileClick(MainWindow& wnd);
+	const int Map2D(const int x,const int y);
 
 private:
-	static constexpr int fieldWidth = 10;
-	static constexpr int fieldHeight = 10;
+	static constexpr int fieldWidth = 30;
+	static constexpr int fieldHeight = 20;
 	static constexpr int fieldSize = fieldWidth * fieldHeight;
 	Tile tiles[fieldSize];
 	Vei2 topLeftPosition;
