@@ -31,7 +31,7 @@ Game::Game( MainWindow& wnd )
 
 void Game::Go()
 {
-	gfx.BeginFrame();	
+	gfx.BeginFrame();
 	UpdateModel();
 	ComposeFrame();
 	gfx.EndFrame();
@@ -39,7 +39,18 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	mineField.TileClick(wnd);
+	while (!wnd.mouse.IsEmpty()){
+		const Mouse::Event e = wnd.mouse.Read();
+		if (e.GetType() == Mouse::Event::Type::LPress){
+			mineField.TileClick(e.GetPos(),false);
+		}
+		else {
+			if (e.GetType() == Mouse::Event::Type::RPress) {
+				mineField.TileClick(e.GetPos(), true);
+			}
+		}
+	}
+	
 }
 
 void Game::ComposeFrame()

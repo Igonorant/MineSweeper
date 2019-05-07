@@ -31,6 +31,7 @@ void MineField::Tile::Draw(Graphics& gfx)
 		break;
 	case TileState::Flagged:
 		SpriteCodex::DrawTileFlag(topLeftPosition, gfx);
+		SpriteCodex::DrawTileButton(topLeftPosition, gfx);
 		break;
 	case TileState::Revealed:
 		if (hasBomb) {
@@ -86,6 +87,16 @@ void MineField::Tile::Draw(Graphics& gfx)
 void MineField::Tile::Reveal()
 {
 	state = TileState::Revealed;
+}
+
+void MineField::Tile::Flag()
+{
+	if (state == TileState::Hidden && state != TileState::Flagged) {
+		state = TileState::Flagged;
+	}
+	else if (state == TileState::Flagged){
+		state = TileState::Hidden;
+	}
 }
 
 MineField::MineField(const int minesNumbers, const Vei2& topLeftPos)
@@ -150,14 +161,18 @@ Vei2 MineField::Grid2Screen(const int gridPos)
 	return Vei2(x,y);
 }
 
-void MineField::TileClick(MainWindow& wnd)
+void MineField::TileClick(const Vei2& clickPosition, bool isRight)
 {
-	if (wnd.mouse.LeftIsPressed()) {
-		tiles[Screen2Grid(wnd.mouse.GetPos())].Reveal();
+	const int gridPos = Screen2Grid(clickPosition);
+	if (isRight) {
+		tiles[gridPos].Flag();
+	}
+	else {
+		tiles[gridPos].Reveal();
 	}
 }
 
-const int MineField::Map2D(const int x, const int y)
+int MineField::Map2D(const int x, const int y) const
 {
 	return x * fieldHeight + y;
 }

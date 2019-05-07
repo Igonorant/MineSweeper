@@ -2,7 +2,6 @@
 #include "SpriteCodex.h"
 #include "Vei2.h"
 #include "Graphics.h"
-#include "MainWindow.h"
 
 class MineField {
 
@@ -22,6 +21,7 @@ private:
 		void SetNeighbourBombs(const int bombCount);
 		void Draw(Graphics& gfx);
 		void Reveal();
+		void Flag();
 
 	private:
 		static constexpr int tileSize = SpriteCodex::tileSize;
@@ -38,8 +38,8 @@ public:
 	void InsertMines(const int minesNumber);
 	int Screen2Grid(const Vei2& screenPos);
 	Vei2 Grid2Screen(const int gridPos);
-	void TileClick(MainWindow& wnd);
-	const int Map2D(const int x,const int y);
+	void TileClick(const Vei2& clickPosition, bool isRight);
+	int Map2D(const int x,const int y) const;
 
 private:
 	static constexpr int fieldWidth = 30;
