@@ -44,31 +44,28 @@ void MineField::Tile::Draw(Graphics& gfx)
 				SpriteCodex::DrawTile0(topLeftPosition, gfx);
 				break;
 			case 1:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile1(topLeftPosition, gfx);
 				break;
 			case 2:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile2(topLeftPosition, gfx);
 				break;
 			case 3:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile3(topLeftPosition, gfx);
 				break;
 			case 4:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile4(topLeftPosition, gfx);
 				break;
 			case 5:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile5(topLeftPosition, gfx);
 				break;
 			case 6:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile6(topLeftPosition, gfx);
 				break;
 			case 7:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile7(topLeftPosition, gfx);
 				break;
 			case 8:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
-				break;
-			case 9:
-				SpriteCodex::DrawTile0(topLeftPosition, gfx);
+				SpriteCodex::DrawTile8(topLeftPosition, gfx);
 				break;
 			default:
 				SpriteCodex::DrawTile0(topLeftPosition, gfx);
@@ -99,20 +96,31 @@ void MineField::Tile::Flag()
 	}
 }
 
+bool MineField::Tile::HasBomb()
+{
+	return hasBomb;
+}
+
+bool MineField::Tile::isFlagged()
+{
+	if (state == TileState::Flagged) {
+		return true;
+	}
+	return false;
+}
+
 MineField::MineField(const int minesNumbers, const Vei2& topLeftPos)
 {
 	topLeftPosition = topLeftPos;
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < fieldHeight; y++) {
 			Vei2 currentScreenPos = topLeftPosition + Vei2(x * SpriteCodex::tileSize, y * SpriteCodex::tileSize);
-			tiles[Map2D(x,y)].SetPosition(currentScreenPos);
-			// tiles[x * fieldWidth + y].Reveal(); //test to check if everything is working under the tiles
+			tiles[Map2D(x, y)].SetPosition(currentScreenPos);
+			// tiles[Map2D(x, y)].Reveal(); //test to check if everything is working under the tiles
 		}
 	}
 	InsertMines(minesNumbers);
-	//SetNeibourhood
-
-
+	CountNeighbourhood();
 }
 
 void MineField::Draw(Graphics& gfx)
@@ -168,11 +176,47 @@ void MineField::TileClick(const Vei2& clickPosition, bool isRight)
 		tiles[gridPos].Flag();
 	}
 	else {
-		tiles[gridPos].Reveal();
+		if (!tiles[gridPos].isFlagged()) {
+			tiles[gridPos].Reveal();
+		}
 	}
 }
 
 int MineField::Map2D(const int x, const int y) const
 {
 	return x * fieldHeight + y;
+}
+
+void MineField::CountNeighbourhood()
+{
+	// loop through all tiles
+	for (int x = 0; x < fieldWidth; x++) {
+		for (int y = 0; y < fieldHeight; y++) {
+
+			const int currentPos = Map2D(x, y);
+			// check if it has no bomb
+			if (!tiles[currentPos].HasBomb()) {
+				// ensure that neighbourhood do not exceed the grid boundaries
+				const int minX = std::max(0, x - 1);
+				const int minY = std::max(0, y - 1);
+				const int maxX = std::min(fieldWidth - 1, x + 1);
+				const int maxY = std::min(fieldHeight - 1, y + 1);
+
+				// loop through neighbourhood and count mines
+				int bombCount = 0;
+				for (int neighX = minX; neighX <= maxX; neighX++) {
+					for (int neighY = minY; neighY <= maxY; neighY++) {
+						const int neighPos = Map2D(neighX, neighY);
+						// ensure to not count itself
+						if (currentPos != neighPos && tiles[neighPos].HasBomb()) {
+							bombCount++;
+						}
+					}
+				}
+				// set tile neighbourhood count
+				tiles[currentPos].SetNeighbourBombs(bombCount);
+			}
+		}
+	}
+
 }

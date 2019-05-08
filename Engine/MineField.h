@@ -22,6 +22,8 @@ private:
 		void Draw(Graphics& gfx);
 		void Reveal();
 		void Flag();
+		bool HasBomb();
+		bool isFlagged();
 
 	private:
 		static constexpr int tileSize = SpriteCodex::tileSize;
@@ -40,10 +42,11 @@ public:
 	Vei2 Grid2Screen(const int gridPos);
 	void TileClick(const Vei2& clickPosition, bool isRight);
 	int Map2D(const int x,const int y) const;
+	void CountNeighbourhood() ;
 
 private:
-	static constexpr int fieldWidth = 30;
-	static constexpr int fieldHeight = 20;
+	static constexpr int fieldWidth = 5;
+	static constexpr int fieldHeight = 5;
 	static constexpr int fieldSize = fieldWidth * fieldHeight;
 	Tile tiles[fieldSize];
 	Vei2 topLeftPosition;
