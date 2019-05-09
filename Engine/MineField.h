@@ -24,6 +24,9 @@ private:
 		void Flag();
 		bool HasBomb();
 		bool isFlagged();
+		bool haveNoNeighbours();
+		bool isHidden();
+		void Explode();
 
 	private:
 		static constexpr int tileSize = SpriteCodex::tileSize;
@@ -35,17 +38,19 @@ private:
 
 public:
 	MineField() = default;
-	MineField(const int minesNumbers, const Vei2& topLeftPos);
+	MineField(const int minesNumbers, Graphics& gfx);
+	Vei2 GetTopLeftPos(const Graphics& gfx) const;
 	void Draw(Graphics& gfx);
 	void InsertMines(const int minesNumber);
 	int Screen2Grid(const Vei2& screenPos);
 	Vei2 Grid2Screen(const int gridPos);
 	void TileClick(const Vei2& clickPosition, bool isRight);
 	int Map2D(const int x,const int y) const;
+	Vei2 Unmap2D(const int gridPos) const;
 	void CountNeighbourhood() ;
 
 private:
-	static constexpr int fieldWidth = 5;
+	static constexpr int fieldWidth = 10;
 	static constexpr int fieldHeight = 5;
 	static constexpr int fieldSize = fieldWidth * fieldHeight;
 	Tile tiles[fieldSize];

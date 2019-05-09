@@ -109,9 +109,30 @@ bool MineField::Tile::isFlagged()
 	return false;
 }
 
-MineField::MineField(const int minesNumbers, const Vei2& topLeftPos)
+bool MineField::Tile::haveNoNeighbours()
 {
-	topLeftPosition = topLeftPos;
+	if (neighbourBombs == 0) {
+		return true;
+	}
+	return false;
+}
+
+bool MineField::Tile::isHidden()
+{
+	if (state == TileState::Hidden) {
+		return true;
+	}
+	return false;
+}
+
+void MineField::Tile::Explode()
+{
+	state = TileState::Exploded;
+}
+
+MineField::MineField(const int minesNumbers, Graphics& gfx)
+{
+	topLeftPosition = GetTopLeftPos(gfx);
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < fieldHeight; y++) {
 			Vei2 currentScreenPos = topLeftPosition + Vei2(x * SpriteCodex::tileSize, y * SpriteCodex::tileSize);
@@ -121,6 +142,16 @@ MineField::MineField(const int minesNumbers, const Vei2& topLeftPos)
 	}
 	InsertMines(minesNumbers);
 	CountNeighbourhood();
+}
+
+Vei2 MineField::GetTopLeftPos(const Graphics& gfx) const
+{
+	Vei2 GridSizePx(fieldWidth * SpriteCodex::tileSize, fieldHeight * SpriteCodex::tileSize);
+	assert(GridSizePx.x < gfx.ScreenWidth);
+	assert(GridSizePx.y < gfx.ScreenHeight);
+	const int topLeftX = (gfx.ScreenWidth - GridSizePx.x) / 2;
+	const int topLeftY = (gfx.ScreenHeight - GridSizePx.y) / 2;
+	return Vei2(topLeftX,topLeftY);
 }
 
 void MineField::Draw(Graphics& gfx)
@@ -164,8 +195,8 @@ int MineField::Screen2Grid(const Vei2& screenPos)
 
 Vei2 MineField::Grid2Screen(const int gridPos)
 {
-	const int x = gridPos / fieldHeight + topLeftPosition.x;
-	const int y = gridPos % fieldHeight + topLeftPosition.y;
+	const int x = (gridPos / fieldHeight) * SpriteCodex::tileSize + topLeftPosition.x;
+	const int y = (gridPos % fieldHeight) * SpriteCodex::tileSize + topLeftPosition.y;
 	return Vei2(x,y);
 }
 
@@ -176,8 +207,30 @@ void MineField::TileClick(const Vei2& clickPosition, bool isRight)
 		tiles[gridPos].Flag();
 	}
 	else {
-		if (!tiles[gridPos].isFlagged()) {
+		if (tiles[gridPos].HasBomb()) {
+			tiles[gridPos].Explode();
+			gameState = GameState::LoseGameOver;
+		}
+		if (!tiles[gridPos].isFlagged() && tiles[gridPos].isHidden()) {
 			tiles[gridPos].Reveal();
+			// recursive implementation to reveal all empty tiles
+			if (!tiles[gridPos].HasBomb() && tiles[gridPos].haveNoNeighbours()) {
+				// ensure that neighbourhood do not exceed the grid boundaries
+				Vei2 unmappedPos = Unmap2D(gridPos);
+				const int minX = std::max(0, unmappedPos.x - 1);
+				const int minY = std::max(0, unmappedPos.y - 1);
+				const int maxX = std::min(fieldWidth - 1, unmappedPos.x + 1);
+				const int maxY = std::min(fieldHeight - 1, unmappedPos.y + 1);
+
+				// loop through neighbourhood and revel if has no bomb
+				for (int neighX = minX; neighX <= maxX; neighX++) {
+					for (int neighY = minY; neighY <= maxY; neighY++) {
+						Vei2 neighPos = Grid2Screen(Map2D(neighX, neighY));
+						TileClick(neighPos, false);
+					}
+				}
+			}
+
 		}
 	}
 }
@@ -185,6 +238,13 @@ void MineField::TileClick(const Vei2& clickPosition, bool isRight)
 int MineField::Map2D(const int x, const int y) const
 {
 	return x * fieldHeight + y;
+}
+
+Vei2 MineField::Unmap2D(const int gridPos) const
+{
+	const int x = gridPos / fieldHeight;
+	const int y = gridPos % fieldHeight;
+	return Vei2(x, y);
 }
 
 void MineField::CountNeighbourhood()

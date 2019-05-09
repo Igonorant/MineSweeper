@@ -25,7 +25,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	mineField(10,Vei2(100,100))
+	mineField(1,gfx)
 {
 }
 
