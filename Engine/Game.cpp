@@ -25,7 +25,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	mineField(1,gfx)
+	mineField(100,gfx)
 {
 }
 
@@ -39,21 +39,33 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	while (!wnd.mouse.IsEmpty()){
-		const Mouse::Event e = wnd.mouse.Read();
-		if (e.GetType() == Mouse::Event::Type::LPress){
-			mineField.TileClick(e.GetPos(),false);
-		}
-		else {
-			if (e.GetType() == Mouse::Event::Type::RPress) {
-				mineField.TileClick(e.GetPos(), true);
+	if (mineField.GetGameState() == MineField::GameState::Running) {
+		while (!wnd.mouse.IsEmpty()) {
+			const Mouse::Event e = wnd.mouse.Read();
+			if (e.GetType() == Mouse::Event::Type::LPress) {
+				mineField.TileClick(e.GetPos(), false);
+			}
+			else {
+				if (e.GetType() == Mouse::Event::Type::RPress) {
+					mineField.TileClick(e.GetPos(), true);
+				}
 			}
 		}
+		mineField.CheckWinning();
 	}
 	
 }
 
 void Game::ComposeFrame()
 {
-	mineField.Draw(gfx);
+	switch (mineField.GetGameState()) {
+	case MineField::GameState::Running:
+		mineField.Draw(gfx);
+	case MineField::GameState::WinGameOver:
+		//DRAW WIN SCREEN
+		mineField.Draw(gfx);
+	case MineField::GameState::LoseGameOver:
+		//DRAW LOSE SCREEN
+		mineField.Draw(gfx);
+	}
 }

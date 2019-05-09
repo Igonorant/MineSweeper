@@ -6,6 +6,7 @@
 class MineField {
 
 	//Enum for game states
+public:
 	enum class GameState{Running,WinGameOver,LoseGameOver};
 
 	//Tile class to build MineField grid
@@ -26,6 +27,7 @@ private:
 		bool isFlagged();
 		bool haveNoNeighbours();
 		bool isHidden();
+		bool isExploded();
 		void Explode();
 
 	private:
@@ -48,10 +50,12 @@ public:
 	int Map2D(const int x,const int y) const;
 	Vei2 Unmap2D(const int gridPos) const;
 	void CountNeighbourhood() ;
+	void CheckWinning();
+	GameState GetGameState() const;
 
 private:
-	static constexpr int fieldWidth = 10;
-	static constexpr int fieldHeight = 5;
+	static constexpr int fieldWidth = 35;
+	static constexpr int fieldHeight = 20;
 	static constexpr int fieldSize = fieldWidth * fieldHeight;
 	Tile tiles[fieldSize];
 	Vei2 topLeftPosition;

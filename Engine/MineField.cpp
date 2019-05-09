@@ -125,6 +125,14 @@ bool MineField::Tile::isHidden()
 	return false;
 }
 
+bool MineField::Tile::isExploded()
+{
+	if (state == TileState::Exploded) {
+		return true;
+	}
+	return false;
+}
+
 void MineField::Tile::Explode()
 {
 	state = TileState::Exploded;
@@ -279,4 +287,30 @@ void MineField::CountNeighbourhood()
 		}
 	}
 
+}
+
+void MineField::CheckWinning()
+{
+	bool winning = true;
+	// loop through all tiles
+	for (int x = 0; x < fieldWidth; x++) {
+		for (int y = 0; y < fieldHeight; y++) {
+			const int currentPos = Map2D(x, y);
+			// check if all tiles are revealed and all flagged contains bombs 
+				if (tiles[currentPos].HasBomb() && !tiles[currentPos].isFlagged() ||
+					tiles[currentPos].isHidden() ||
+					tiles[currentPos].isExploded()) {
+					winning = false;
+					break;
+				}
+		}
+	}
+	if (winning) {
+		gameState = GameState::WinGameOver;
+	}
+}
+
+MineField::GameState MineField::GetGameState() const
+{
+	return gameState;
 }
